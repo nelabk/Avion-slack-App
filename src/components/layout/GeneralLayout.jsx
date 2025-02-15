@@ -1,7 +1,11 @@
-import React from "react";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { AppSidebar } from "./AppSidebar";
 
-function GeneralLayout() {
-  return <div>jdhjdfv</div>;
+export default function Layout({ children }) {
+  return (
+    <SidebarProvider>
+      <AppSidebar />
+      <main>{children}</main>
+    </SidebarProvider>
+  );
 }
-
-export default GeneralLayout;

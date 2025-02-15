@@ -1,7 +1,7 @@
 import React from "react";
 
 function Channels() {
-  return <div>jgcjdg</div>;
+  return <div></div>;
 }
 
 export default Channels;
