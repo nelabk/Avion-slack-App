@@ -1,3 +1,4 @@
+import React, { useEffect, useState } from "react";
 import {
   ChevronDown,
   Home,
@@ -18,9 +19,6 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 
 import {
@@ -35,126 +33,189 @@ import {
   CollapsibleTrigger,
   CollapsibleContent,
 } from "@/components/ui/collapsible";
+import ChannelsSidebar from "./ChannelsSidebar";
+import MessagesSidebar from "./MessagesSidebar";
+import CreateChannelDialog from "./CreateChannelDialog";
+import { getAllUsersChannels, getAllUsers } from "../../lib/api";
 
-// Menu items.
-const items = [
-  {
-    title: "Home",
-    url: "#",
-    icon: Home,
-    hasDropdown: false,
-    hasCollapsible: false,
-  },
-  {
-    title: "Channels",
-    url: "#",
-    icon: Rss,
-    hasDropdown: true,
-    dropdownOptions: ["Create a Channel"],
-    hasCollapsible: true,
-  },
-  {
-    title: "Messages",
-    url: "#",
-    icon: Inbox,
-    hasDropdown: true,
-    dropdownOptions: ["Create a Message"],
-    hasCollapsible: true,
-  },
-  {
-    title: "Search",
-    url: "#",
-    icon: Search,
-    hasDropdown: false,
-    hasCollapsible: false,
-  },
-  {
-    title: "Sign out",
-    url: "#",
-    icon: LogOut,
-    hasDropdown: false,
-    hasCollapsible: false,
-  },
-];
+export function AppSidebar({ directMsgUser, messages }) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [channels, setChannels] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
+  const [members, setMembers] = useState([]);
+  const [isOpen, setIsOpen] = useState(false);
+  const [isAddMembersDialogOpen, setIsAddMembersDialogOpen] = useState(false);
+  const [isPopOverOpen, setIsPopOverOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState([]);
+  const [channelMembers, setChannelMembers] = useState([]);
 
-export function AppSidebar() {
+  useEffect(() => {
+    async function fetchUsers() {
+      const users = await getAllUsers();
+      console.log(users);
+      setAllUsers(users.data);
+    }
+
+    fetchUsers();
+  }, []);
+
+  useEffect(() => {
+    async function fetchChannels() {
+      const data = await getAllUsersChannels();
+      console.log(data);
+      setChannels(data.data);
+    }
+
+    fetchChannels();
+  }, []);
+
+  // Menu items.
+  const items = [
+    {
+      title: "Home",
+      url: "#",
+      icon: Home,
+      hasDropdown: false,
+      hasCollapsible: false,
+    },
+    {
+      title: "Channels",
+      url: "#",
+      icon: Rss,
+      hasDropdown: true,
+      dropdownOptions: ["Create new channel"],
+      collapsibleContent: (
+        <ChannelsSidebar
+          channels={channels}
+          allUsers={allUsers}
+          setChannels={setChannels}
+          members={members}
+          setMembers={setMembers}
+          isAddMembersDialogOpen={isAddMembersDialogOpen}
+          setIsAddMembersDialogOpen={setIsAddMembersDialogOpen}
+          isPopOverOpen={isPopOverOpen}
+          setIsPopOverOpen={setIsPopOverOpen}
+          selectedUser={selectedUser}
+          setSelectedUser={setSelectedUser}
+          channelMembers={channelMembers}
+          setChannelMembers={setChannelMembers}
+        />
+      ),
+      hasCollapsible: true,
+    },
+    {
+      title: "Messages",
+      url: "#",
+      icon: Inbox,
+      hasDropdown: true,
+      dropdownOptions: ["Create a message"],
+      collapsibleContent: (
+        <MessagesSidebar
+          directMsgUser={directMsgUser}
+          isOpen={isOpen}
+          setIsOpen={setIsOpen}
+          messages={messages}
+          allUsers={allUsers}
+        />
+      ),
+      hasCollapsible: true,
+    },
+    {
+      title: "Search",
+      url: "#",
+      icon: Search,
+      hasDropdown: false,
+      hasCollapsible: false,
+    },
+    {
+      title: "Sign out",
+      url: "#",
+      icon: LogOut,
+      hasDropdown: false,
+      hasCollapsible: false,
+    },
+  ];
+
   return (
-    <Sidebar>
-      <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Application</SidebarGroupLabel>
-          <SidebarGroupContent>
-            <SidebarMenu>
-              {items.map((item) => (
-                <SidebarMenuItem
-                  key={item.title}
-                  className="flex justify-between items-center w-full"
-                >
-                  {/* regular items */}
-                  {!item.hasDropdown && !item.hasCollapsible && (
-                    <SidebarMenuButton asChild>
-                      <a href={item.url} className="flex items-center w-full">
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  )}
+    <div>
+      <Sidebar>
+        <SidebarContent>
+          <SidebarGroup>
+            <SidebarGroupLabel>Application</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {items.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    {/* regular items */}
+                    {!item.hasDropdown && !item.hasCollapsible && (
+                      <SidebarMenuButton asChild>
+                        <a href={item.url}>
+                          <item.icon />
+                          <span>{item.title}</span>
+                        </a>
+                      </SidebarMenuButton>
+                    )}
+                    {/* collapsible */}
+                    {item.hasCollapsible && (
+                      <Collapsible>
+                        <div className="flex items-center justify-between">
+                          <CollapsibleTrigger asChild>
+                            <SidebarMenuButton>
+                              <item.icon />
+                              <span className="ml-2">{item.title}</span>
+                            </SidebarMenuButton>
+                          </CollapsibleTrigger>
 
-                  {/* collapsible */}
-                  {item.hasCollapsible && (
-                    <Collapsible className="w-full">
-                      <div className="flex items-center justify-between w-full">
-                        <CollapsibleTrigger asChild>
-                          <SidebarMenuButton className="flex-grow">
-                            <item.icon />
-                            <span className="ml-2">{item.title}</span>
-                          </SidebarMenuButton>
-                        </CollapsibleTrigger>
+                          {/* dropdown */}
+                          {item.hasDropdown && (
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <button className="ml-2">
+                                  <ChevronDown />
+                                </button>
+                              </DropdownMenuTrigger>
 
-                        {/* dropdown */}
-                        {item.hasDropdown && (
-                          <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                              <button className="ml-2">
-                                <ChevronDown />
-                              </button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent>
-                              {item.dropdownOptions.map((option, index) => (
-                                <DropdownMenuItem key={index}>
-                                  <PlusCircle className="mr-2" size={16} />
-                                  <span>{option}</span>
-                                </DropdownMenuItem>
-                              ))}
-                            </DropdownMenuContent>
-                          </DropdownMenu>
-                        )}
-                      </div>
+                              <DropdownMenuContent>
+                                {item.dropdownOptions.map((option, index) => (
+                                  <DropdownMenuItem
+                                    key={index}
+                                    onClick={() => setIsDialogOpen(true)}
+                                    className="cursor-pointer"
+                                  >
+                                    <PlusCircle className="mr-2" size={16} />
+                                    <span>{option}</span>
+                                  </DropdownMenuItem>
+                                ))}
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          )}
+                        </div>
 
-                      {/* Collapsible menu */}
+                        {/* Collapsible content */}
+                        {item.collapsibleContent}
+                      </Collapsible>
+                    )}
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarContent>
+      </Sidebar>
 
-                      <CollapsibleContent>
-                        <SidebarMenuSub>
-                          <SidebarMenuSubItem>
-                            <SidebarMenuSubButton>
-                              <span>New {item.title} 1</span>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                          <SidebarMenuSubItem>
-                            <SidebarMenuSubButton>
-                              <span>New {item.title} 2</span>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        </SidebarMenuSub>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  )}
-                </SidebarMenuItem>
-              ))}
-            </SidebarMenu>
-          </SidebarGroupContent>
-        </SidebarGroup>
-      </SidebarContent>
-    </Sidebar>
+      <CreateChannelDialog
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
+        setChannels={setChannels}
+        allUsers={allUsers}
+        channels={channels}
+        members={members}
+        setMembers={setMembers}
+        isOpen={isOpen}
+        setIsOpen={setIsOpen}
+        selectedUser={selectedUser}
+        setSelectedUser={setSelectedUser}
+      />
+    </div>
   );
 }

@@ -6,26 +6,27 @@ import Messages from "./pages/Messages";
 import GeneralLayout from "./components/layout/GeneralLayout";
 import Login from "./components/auth/login";
 import Dashboard from "./pages/Dashboard";
+import { useState } from "react";
 
 function App() {
+  const [directMsgUser, setDirectMsgUser] = useState([]);
+
+  const handleDirectMsgUserChange = (email) => {
+    setDirectMsgUser(email);
+  };
+
   return (
     <BrowserRouter>
       <Routes>
         <Route index element={<Home />} />
+        <Route path="/channels/:id/messages" element={<Channels />} />
         <Route
-          path="/channels"
+          path="/messages/:userId/messages"
           element={
-            <GeneralLayout>
-              <Channels />
-            </GeneralLayout>
-          }
-        />
-        <Route
-          path="/messages/:userId"
-          element={
-            <GeneralLayout>
-              <Messages />
-            </GeneralLayout>
+            <Messages
+              directMsgUser={directMsgUser}
+              onDirectMsgUserChange={handleDirectMsgUserChange}
+            />
           }
         />
         <Route
