@@ -12,7 +12,8 @@ function Channels() {
   const [messages, setMessages] = useState([]);
   const [channelName, setChannelName] = useState("");
   const [message, setMessage] = useState("");
-  console.useEffect(() => {
+
+  useEffect(() => {
     async function fetchData() {
       try {
         const response = await getAllUsersChannels();

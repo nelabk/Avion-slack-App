@@ -54,11 +54,12 @@ function ChannelsSidebar({
     navigate(`/channels/${channelId}/messages`);
 
     const channelData = await getChannelDetails(channelId);
+
     setSelectedChannel(channelData);
     console.log("channeldata:", channelData);
-    const memberIds = channelData.data.channel_members.map(
-      (member) => member.user_id
-    );
+
+    const memberIds =
+      channelData.data.channel_members.map((member) => member.user_id) || [];
 
     const memberEmails = memberIds.map((user_id) => {
       const user = allUsers.find((user) => user.id === user_id);
@@ -88,72 +89,80 @@ function ChannelsSidebar({
       <div>
         <Collapsible>
           <SidebarMenu>
-            {channels.map((channel) => (
-              <SidebarMenuItem key={channel.id}>
-                <CollapsibleTrigger asChild>
-                  <SidebarMenuButton>
-                    <span
-                      className="cursor-pointer"
-                      onClick={() => handleChannelClick(channel.id)}
-                    >
-                      {channel.name}
-                    </span>
-                    <span>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <SidebarMenuAction>
-                            <MoreHorizontal />
-                          </SidebarMenuAction>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent side="right" align="start">
-                          <DropdownMenuItem>
-                            <span
-                              onClick={() => {
-                                setIsAddMembersDialogOpen(true);
-                              }}
-                            >
-                              Add members
-                            </span>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <span onClick={() => handleClickDelete(channel.id)}>
-                              Delete channel
-                            </span>
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                    </span>
-                  </SidebarMenuButton>
-                </CollapsibleTrigger>
-
-                {selectedChannel &&
-                  selectedChannel.data &&
-                  selectedChannel.data.id === channel.id &&
-                  channelMembers.email?.length > 0 && (
-                    <CollapsibleContent>
-                      <SidebarMenuSub>
-                        {channelMembers.email.map((email, index) => (
-                          <SidebarMenuSubItem key={index}>
-                            <SidebarMenuSubButton
-                              className="cursor-pointer"
-                              onClick={() => {
-                                navigate(
-                                  `/messages/${channelMembers.id?.[index]}/messages`
-                                );
-                              }}
-                            >
-                              <span className="bg-neutral-400 w-6 h-6 items-center justify-center flex rounded-full">
-                                {getInitials(email)}
+            {channels?.length > 0 ? (
+              channels.map((channel) => (
+                <SidebarMenuItem key={channel.id}>
+                  <CollapsibleTrigger asChild>
+                    <SidebarMenuButton>
+                      <span
+                        className="cursor-pointer"
+                        onClick={() => handleChannelClick(channel.id)}
+                      >
+                        {channel.name}
+                      </span>
+                      <span>
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <SidebarMenuAction>
+                              <MoreHorizontal />
+                            </SidebarMenuAction>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent side="right" align="start">
+                            <DropdownMenuItem>
+                              <span
+                                onClick={() => {
+                                  setIsAddMembersDialogOpen(true);
+                                }}
+                              >
+                                Add members
                               </span>
-                              <span>{email}</span>
-                            </SidebarMenuSubButton>
-                          </SidebarMenuSubItem>
-                        ))}
-                      </SidebarMenuSub>
-                    </CollapsibleContent>
-                  )}
-              </SidebarMenuItem>
-            ))}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem>
+                              <span
+                                onClick={() => handleClickDelete(channel.id)}
+                              >
+                                Delete channel
+                              </span>
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </span>
+                    </SidebarMenuButton>
+                  </CollapsibleTrigger>
+
+                  {selectedChannel &&
+                    selectedChannel.data &&
+                    selectedChannel.data.id === channel.id &&
+                    channelMembers.email?.length > 0 && (
+                      <CollapsibleContent>
+                        <SidebarMenuSub>
+                          {channelMembers.email.map((email, index) => (
+                            <SidebarMenuSubItem key={index}>
+                              <SidebarMenuSubButton
+                                className="cursor-pointer"
+                                onClick={() => {
+                                  navigate(
+                                    `/messages/${channelMembers.id?.[index]}/messages`
+                                  );
+                                }}
+                              >
+                                <span className="bg-neutral-400 w-6 h-6 items-center justify-center flex rounded-full">
+                                  {getInitials(email)}
+                                </span>
+                                <span>{email}</span>
+                              </SidebarMenuSubButton>
+                            </SidebarMenuSubItem>
+                          ))}
+                        </SidebarMenuSub>
+                      </CollapsibleContent>
+                    )}
+                </SidebarMenuItem>
+              ))
+            ) : (
+              <div className="text-center text-gray-500 p-4">
+                No channels available. Create or join a channel.
+              </div>
+            )}
           </SidebarMenu>
         </Collapsible>
 
