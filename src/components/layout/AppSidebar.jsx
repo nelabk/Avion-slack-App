@@ -215,6 +215,8 @@ export function AppSidebar({ directMsgUser, messages }) {
         setIsOpen={setIsOpen}
         selectedUser={selectedUser}
         setSelectedUser={setSelectedUser}
+        isPopOverOpen={isPopOverOpen}
+        setIsPopOverOpen={setIsPopOverOpen}
       />
     </div>
   );

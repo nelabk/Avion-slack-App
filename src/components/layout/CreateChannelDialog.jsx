@@ -47,6 +47,8 @@ function CreateChannelDialog({
   setIsOpen,
   selectedUser,
   setSelectedUser,
+  isPopOverOpen,
+  setIsPopOverOpen,
 }) {
   const [channelName, setChannelName] = useState("");
 
@@ -102,7 +104,11 @@ function CreateChannelDialog({
               <Label htmlFor="username" className="text-right">
                 Members
               </Label>
-              <Popover modal open={isOpen} onOpenChange={setIsOpen}>
+              <Popover
+                modal
+                open={isPopOverOpen}
+                onOpenChange={setIsPopOverOpen}
+              >
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
@@ -111,7 +117,7 @@ function CreateChannelDialog({
                     className="w-[200px] justify-between"
                   >
                     {selectedUser.length > 0
-                      ? selectedUser.map((user) => user.email)
+                      ? selectedUser[selectedUser.length - 1].email
                       : "Select members..."}
                     <ChevronsUpDown className="opacity-50" />
                   </Button>
@@ -149,7 +155,7 @@ function CreateChannelDialog({
                                   setMembers([...members, selectedUserObj]);
                                 }
 
-                                setIsOpen(false);
+                                setIsPopOverOpen(false);
                               }}
                             >
                               {user.email}
